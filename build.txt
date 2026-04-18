@@ -1,0 +1,54 @@
+This is an RAG Based AI assistnat project where i want to build it to demonstare my undersanding og RAG based chatbots or assitants
+
+
+Below should be project structure
+    backend : folder will have backend as per tech stack
+    frontend : folder will have frotnend as per tech stack
+    docker-compose.yml : docker file to run project
+    dopcker-info-compose.yml : to run requried domponent in docker suych as postgres etc
+
+Tech Stach
+Backend :
+    Python 3.13.9
+    Fast API
+Frontend : 
+    React Latest
+    Tailwind css + shadcn
+    lucid chart icons
+
+Database
+    Postgres with vector storage (docker container)
+
+LLm : 
+    Gemeni LLm reading api keys from env file in backend
+
+
+
+Requirments
+1. Build Frotnend 
+    show a page left menio only icon
+        Menu
+            Knowledge Base
+            New Chat
+
+            Previous chats
+    
+    Knowledge Base
+        List of added knowlerdge Bases
+        New Knowledge Base (Text/PDF/CSV/.txt)
+        Knowlegde Chunks Info 
+        For each knowledge base abiloity to delete it
+    
+    New Chat
+        will have chat like ui
+        input box where user can enter query which will send query to backend via socket adn then backend will return aswer by RAG
+
+    List of all chat (chat title should be some meanignfull name from context of chat when user started query cna be generated from llm)
+
+1. Build backend which will expose api required to complete below functionalities
+    Use gemeric llm
+    expose apis for amanging knowledge base
+    expoer webshocklet for chat
+    expoet api to manage chat
+
+    
