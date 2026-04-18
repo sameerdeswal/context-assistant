@@ -38,5 +38,13 @@ def init_db():
 
     with engine.begin() as connection:
         connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        connection.execute(
+            text(
+                """
+                ALTER TABLE IF EXISTS knowledge_base_chunks
+                ADD COLUMN IF NOT EXISTS embedding vector(768)
+                """
+            )
+        )
 
     Base.metadata.create_all(bind=engine)

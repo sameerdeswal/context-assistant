@@ -19,11 +19,14 @@ export const API = {
     return response.data
   },
 
-  async createKnowledgeBase(name, sourceType, file) {
+  async createKnowledgeBase(name, sourceType, file, textContent = '') {
     const formData = new FormData()
     formData.append('name', name)
     formData.append('source_type', sourceType)
     formData.append('description', `Created on ${new Date().toLocaleDateString()}`)
+    if (sourceType === 'text' && textContent) {
+      formData.append('text_content', textContent)
+    }
     if (file) {
       formData.append('file', file)
     }

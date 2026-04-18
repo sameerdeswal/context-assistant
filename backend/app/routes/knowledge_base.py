@@ -1,7 +1,9 @@
 import uuid
+from io import BytesIO
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, File, Form, UploadFile
 from sqlalchemy.orm import Session
+from pypdf import PdfReader
 from app.database import get_db
 from app import models, schemas
 from app.rag import rag_service
@@ -14,17 +16,46 @@ async def create_knowledge_base(
     name: str = Form(...),
     source_type: str = Form(...),
     description: Optional[str] = Form(None),
+    text_content: Optional[str] = Form(None),
     file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
     """Create a new knowledge base"""
     kb_id = str(uuid.uuid4())
     
-    # Read file content if provided
+    # Read content depending on selected source type
     content = ""
-    if file:
-        content = await file.read()
-        content = content.decode("utf-8")
+    source_type = source_type.lower()
+
+    if source_type == "text":
+        content = (text_content or "").strip()
+        if not content:
+            raise HTTPException(status_code=400, detail="text_content is required for text source type")
+    else:
+        if not file:
+            raise HTTPException(status_code=400, detail=f"file is required for {source_type} source type")
+
+        raw = await file.read()
+        if not raw:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty")
+
+        if source_type == "pdf":
+            try:
+                reader = PdfReader(BytesIO(raw))
+                pages = [page.extract_text() or "" for page in reader.pages]
+                content = "\n".join(pages).strip()
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Failed to parse PDF: {e}")
+        elif source_type in {"csv", "txt"}:
+            try:
+                content = raw.decode("utf-8").strip()
+            except UnicodeDecodeError:
+                content = raw.decode("latin-1").strip()
+        else:
+            raise HTTPException(status_code=400, detail=f"Unsupported source_type: {source_type}")
+
+        if not content:
+            raise HTTPException(status_code=400, detail="No readable text content found in uploaded file")
     
     # Create knowledge base record
     db_kb = models.KnowledgeBase(

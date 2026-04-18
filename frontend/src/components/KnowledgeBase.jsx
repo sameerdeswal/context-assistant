@@ -9,6 +9,8 @@ function KnowledgeBase() {
   const [error, setError] = useState(null)
   const [uploadName, setUploadName] = useState('')
   const [uploadType, setUploadType] = useState('text')
+  const [textContent, setTextContent] = useState('')
+  const [uploadFile, setUploadFile] = useState(null)
 
   useEffect(() => {
     loadKnowledgeBases()
@@ -35,11 +37,23 @@ function KnowledgeBase() {
       return
     }
 
+    if (uploadType === 'text' && !textContent.trim()) {
+      setError('Please provide text content for text knowledge base')
+      return
+    }
+
+    if (uploadType !== 'text' && !uploadFile) {
+      setError('Please upload a file for the selected type')
+      return
+    }
+
     try {
       setLoading(true)
-      await API.createKnowledgeBase(uploadName, uploadType, null)
+      await API.createKnowledgeBase(uploadName, uploadType, uploadFile, textContent)
       setUploadName('')
       setUploadType('text')
+      setTextContent('')
+      setUploadFile(null)
       await loadKnowledgeBases()
       setError(null)
     } catch (err) {
@@ -92,7 +106,13 @@ function KnowledgeBase() {
               <label className="form-label">Type</label>
               <select
                 value={uploadType}
-                onChange={(e) => setUploadType(e.target.value)}
+                onChange={(e) => {
+                  const nextType = e.target.value
+                  setUploadType(nextType)
+                  setError(null)
+                  setTextContent('')
+                  setUploadFile(null)
+                }}
                 className="input w-full"
               >
                 <option value="text">Text</option>
@@ -101,6 +121,32 @@ function KnowledgeBase() {
                 <option value="txt">TXT</option>
               </select>
             </div>
+
+            {uploadType === 'text' ? (
+              <div className="form-group">
+                <label className="form-label">Text Content</label>
+                <textarea
+                  value={textContent}
+                  onChange={(e) => setTextContent(e.target.value)}
+                  placeholder="Paste or type knowledge base content here..."
+                  className="input kb-textarea"
+                  rows={6}
+                />
+              </div>
+            ) : (
+              <div className="form-group">
+                <label className="form-label">Upload File ({uploadType.toUpperCase()})</label>
+                <input
+                  type="file"
+                  accept={uploadType === 'pdf' ? '.pdf' : uploadType === 'csv' ? '.csv' : '.txt'}
+                  onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                  className="input w-full"
+                />
+                {uploadFile && (
+                  <p className="file-name">Selected: {uploadFile.name}</p>
+                )}
+              </div>
+            )}
 
             <button
               type="submit"
@@ -136,22 +182,23 @@ function KnowledgeBase() {
                 <div key={kb.id} className="kb-card">
                   <div className="kb-card-header">
                     <h3 className="text-lg font-semibold text-gray-900">{kb.name}</h3>
-                    <span className="kb-type-badge">{kb.source_type}</span>
+                    
                   </div>
                   
-                  {kb.description && (
-                    <p className="kb-description">{kb.description}</p>
-                  )}
+                  
                   
                   <div className="kb-meta">
                     <span className="kb-chunks">
                       {kb.chunks?.length || 0} chunks
                     </span>
+                    <span className="kb-type-badge">{kb.source_type}</span>
                     <span className="kb-date">
                       {new Date(kb.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  
+                  {kb.description && (
+                    <p className="kb-description">{kb.description}</p>
+                  )}
                   <button
                     onClick={() => handleDelete(kb.id)}
                     className="btn-delete"

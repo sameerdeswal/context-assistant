@@ -175,11 +175,12 @@ function ChatWindow({ chatId, knowledgeBaseId, onNewChat }) {
 
         {messages.map((msg) => (
           <div key={msg.id} className={`message message-${msg.role}`}>
-            <div className="message-avatar">
-              {msg.role === 'user' ? '👤' : '🤖'}
-            </div>
+           {msg.role !== 'user' ? '🤖':''}
             <div className="message-content">
               <p className="message-text">{msg.content}</p>
+            </div>
+             <div className="message-avatar">
+              {msg.role === 'user' ? '👤' : ''}
             </div>
           </div>
         ))}

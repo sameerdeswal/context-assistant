@@ -43,6 +43,16 @@
   color: #374151;
 }
 
+.kb-textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.file-name {
+  font-size: 0.813rem;
+  color: #4b5563;
+}
+
 .alert {
   padding: 1rem;
   border-radius: 0.375rem;

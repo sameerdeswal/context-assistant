@@ -16,6 +16,7 @@ httpx>=0.20.0
 
 # CORS
 python-multipart>=0.0.5
+pypdf>=4.2.0
 
 # Testing (optional)
 pytest>=7.0
