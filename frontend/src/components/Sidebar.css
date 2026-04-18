@@ -1,13 +1,13 @@
 .sidebar {
   width: 80px;
   height: 100vh;
-  background-color: #111827;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 1.5rem 0;
   gap: 2rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid #e5e7eb;
 }
 
 .sidebar-icon {

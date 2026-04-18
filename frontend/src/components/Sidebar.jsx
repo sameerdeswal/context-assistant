@@ -12,8 +12,8 @@ function Sidebar({ currentView, onViewChange }) {
   ]
 
   return (
-    <div className="sidebar bg-gray-900 text-white w-20 flex flex-col items-center py-6 space-y-8 shadow-lg">
-      <div className="logo-icon w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-lg">
+    <div className="sidebar w-20 flex flex-col items-center py-6 space-y-8 shadow-lg">
+      <div className="logo-icon w-12 h-12 bg-zinc-900 text-zinc-100 rounded-lg flex items-center justify-center font-bold text-lg">
         CA
       </div>
 
@@ -29,8 +29,8 @@ function Sidebar({ currentView, onViewChange }) {
                 onMouseLeave={() => setIsHovering(null)}
                 className={`sidebar-icon w-12 h-12 rounded-lg flex items-center justify-center transition-all ${
                   isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    ? 'bg-gray-800 text-white'
+                    : '  hover:bg-zinc-200'
                 }`}
                 title={item.title}
               >
@@ -38,7 +38,7 @@ function Sidebar({ currentView, onViewChange }) {
               </button>
               
               {isHovering === item.id && (
-                <div className="tooltip absolute left-20 bg-gray-800 text-white text-sm px-3 py-1 rounded whitespace-nowrap">
+                <div className="tooltip absolute left-20 bg-zinc-800 text-white text-sm px-3 py-1 rounded whitespace-nowrap">
                   {item.label}
                 </div>
               )}
@@ -47,11 +47,11 @@ function Sidebar({ currentView, onViewChange }) {
         })}
       </nav>
 
-      <button className="settings-icon w-12 h-12 bg-gray-800 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-all">
+      {/* <button className="settings-icon w-12 h-12 bg-gray-800 text-gray-400 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-all">
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 11-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 01-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 01-3 0m-9.75 0h9.75" />
         </svg>
-      </button>
+      </button> */}
     </div>
   )
 }

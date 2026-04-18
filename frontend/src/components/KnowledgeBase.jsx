@@ -66,8 +66,8 @@ function KnowledgeBase() {
   return (
     <div className="knowledge-base-container">
       <div className="knowledge-base-header">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          <BookOpen size={32} />
+        <h1 className="text-1xl font-bold text-zinc-900 flex items-center gap-2">
+          <BookOpen size={16} />
           Knowledge Bases
         </h1>
       </div>
@@ -75,7 +75,7 @@ function KnowledgeBase() {
       <div className="knowledge-base-content">
         {/* Upload Form */}
         <div className="upload-section">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Add New Knowledge Base</h2>
+          <h2 className="text-lg font-semibold text-zinc-800 mb-4">Add New Knowledge Base</h2>
           <form onSubmit={handleUpload} className="upload-form">
             <div className="form-group">
               <label className="form-label">Name</label>

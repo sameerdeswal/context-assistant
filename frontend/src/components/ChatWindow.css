@@ -9,7 +9,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
+  padding: 1rem;
   border-bottom: 1px solid #e5e7eb;
   background-color: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -20,7 +20,7 @@
 }
 
 .chat-title {
-  font-size: 1.875rem;
+  font-size: 1.575rem;
   font-weight: bold;
   color: #111827;
   margin: 0;
