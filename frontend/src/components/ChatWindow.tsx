@@ -1,17 +1,45 @@
-import { useState, useEffect, useRef } from 'react'
-import { Send, Plus } from 'lucide-react'
-import { API } from '../services/api'
-import './ChatWindow.css'
+import { useState, useEffect, useRef, type FormEvent } from 'react'
+import { Send, Plus, ArrowUpIcon } from 'lucide-react'
+import API, {
+  type Chat,
+  type KnowledgeBase,
+  type Message,
+  type WebSocketChatMessage,
+} from '@/services/api'
+import { Button } from './ui/button'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select'
+import { Textarea } from './ui/textarea'
+import useApp from '@/stores/appStore'
 
-function ChatWindow({ chatId, knowledgeBaseId, onNewChat }) {
-  const [messages, setMessages] = useState([])
+interface ChatWindowProps {
+  chatId: string | null
+  knowledgeBaseId: string | null
+  onNewChat: () => void
+}
+
+function ChatWindow({ chatId, knowledgeBaseId, onNewChat }: ChatWindowProps) {
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [currentChatId, setCurrentChatId] = useState(chatId)
-  const [kbs, setKbs] = useState([])
-  const [selectedKb, setSelectedKb] = useState(knowledgeBaseId)
-  const messagesEndRef = useRef(null)
+  const [error, setError] = useState<string | null>(null)
+  const [currentChatId, setCurrentChatId] = useState<string | null>(chatId)
+  const [kbs, setKbs] = useState<KnowledgeBase[]>([])
+  const [selectedKb, setSelectedKb] = useState<string | null>(knowledgeBaseId)
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
+  const appStore = useApp()
+
+  useEffect(() => {
+    appStore.setHeading(currentChatId ? 'Chat Conversation' : 'New Chat')
+  },[])
+
+  useEffect(() => {
+    setCurrentChatId(chatId)
+  }, [chatId])
+
+  useEffect(() => {
+    setSelectedKb(knowledgeBaseId)
+  }, [knowledgeBaseId])
 
   useEffect(() => {
     loadKnowledgeBases()
@@ -35,9 +63,13 @@ function ChatWindow({ chatId, knowledgeBaseId, onNewChat }) {
   }
 
   const loadChatMessages = async () => {
+    if (!currentChatId) {
+      return
+    }
+
     try {
       setLoading(true)
-      const chat = await API.getChat(currentChatId)
+      const chat: Chat = await API.getChat(currentChatId)
       setMessages(chat.messages || [])
       setError(null)
     } catch (err) {
@@ -56,26 +88,11 @@ function ChatWindow({ chatId, knowledgeBaseId, onNewChat }) {
     scrollToBottom()
   }, [messages])
 
-  const handleStartNewChat = async () => {
-    try {
-      const newChat = await API.createChat(
-        `Chat - ${new Date().toLocaleString()}`,
-        selectedKb
-      )
-      setCurrentChatId(newChat.id)
-      setMessages([])
-      setError(null)
-    } catch (err) {
-      setError('Failed to create new chat')
-      console.error(err)
-    }
-  }
-
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    
+
     if (!input.trim()) return
-    
+
     let targetChatId = currentChatId
     if (!targetChatId) {
       try {
@@ -107,7 +124,7 @@ function ChatWindow({ chatId, knowledgeBaseId, onNewChat }) {
       setMessages(prev => [...prev, userMsg])
 
       // Send to WebSocket
-      API.sendChatMessage(targetChatId, userMessage, (response) => {
+      API.sendChatMessage(targetChatId, userMessage, (response: WebSocketChatMessage) => {
         if (response.type === 'message') {
           setMessages(prev => [...prev, {
             id: response.id,
@@ -125,48 +142,41 @@ function ChatWindow({ chatId, knowledgeBaseId, onNewChat }) {
   }
 
   return (
-    <div className="chat-window">
+    <div className="flex flex-col flex-1 w-full px-3 pb-3">
       {/* Header */}
-      <div className="chat-header">
-        <div className="chat-header-left">
-          <h1 className="chat-title">
-            {currentChatId ? 'Chat Conversation' : 'Start a New Chat'}
-          </h1>
+      <div className="flex w-full items-center justify-between">
+        <div className="font-semibold flex flex-row gap-2 items-center flex-1">
+          <Select onValueChange={(value) => setSelectedKb(value)} value={selectedKb || ""}>
+            <SelectTrigger className="w-full max-w-48">
+              <SelectValue placeholder="General Chat" />
+            </SelectTrigger>
+            <SelectContent className='focus-visible:right-0'>
+              <SelectGroup>
+                {kbs.map((kb) => (
+                  <SelectItem key={kb.id} value={kb.id} className='focus-visible:ring-0'>
+                    {kb.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
         {currentChatId && (
-          <button
+          <Button
             onClick={onNewChat}
-            className="btn btn-secondary flex items-center gap-2"
+            variant="outline"
           >
             <Plus size={18} />
             New Chat
-          </button>
+          </Button>
         )}
       </div>
 
-      {/* KB Selector */}
-      <div className="kb-selector">
-        <label className="kb-selector-label">Knowledge Base:</label>
-        <select
-          value={selectedKb || ''}
-          onChange={(e) => setSelectedKb(e.target.value || null)}
-          className="input"
-          disabled={currentChatId !== null}
-        >
-          <option value="">None (General Chat)</option>
-          {kbs.map((kb) => (
-            <option key={kb.id} value={kb.id}>
-              {kb.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
       {/* Messages Area */}
-      <div className="messages-container">
+      <div className="flex flex-colp-3 items-center justify-center flex-1 w-full gap-3 overflow-y-auto">
         {messages.length === 0 && !currentChatId && (
-          <div className="empty-state">
-            <h2 className="empty-state-title">Welcome to Context Assistant</h2>
+          <div className="text-center">
+            <h2 className="font-semibold text-lg">Welcome to Context Assistant</h2>
             <p className="empty-state-subtitle">
               Select a knowledge base and send a message to start chatting
             </p>
@@ -175,11 +185,11 @@ function ChatWindow({ chatId, knowledgeBaseId, onNewChat }) {
 
         {messages.map((msg) => (
           <div key={msg.id} className={`message message-${msg.role}`}>
-           {msg.role !== 'user' ? '🤖':''}
+            {msg.role !== 'user' ? '🤖' : ''}
             <div className="message-content">
               <p className="message-text">{msg.content}</p>
             </div>
-             <div className="message-avatar">
+            <div className="message-avatar">
               {msg.role === 'user' ? '👤' : ''}
             </div>
           </div>
@@ -209,23 +219,20 @@ function ChatWindow({ chatId, knowledgeBaseId, onNewChat }) {
       )}
 
       {/* Input Area */}
-      <form onSubmit={handleSendMessage} className="chat-input-form">
-        <input
-          type="text"
+      <form onSubmit={handleSendMessage} className="flex gap-1 items-end w-full border rounded-lg justify-end p-2">
+        <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={currentChatId ? "Type your message..." : "Select KB and start chatting..."}
-          className="chat-input"
           disabled={loading}
+          className='border-none focus:ring-0 focus-visible:ring-0 resize-none'
         />
-        <button
-          type="submit"
-          disabled={loading || !input.trim()}
-          className="chat-send-btn"
-          title="Send message"
-        >
-          <Send size={20} />
-        </button>
+        <Button
+          variant="default"
+          size="icon-sm"
+          title="Send message" className={`rounded-full ${!input.trim() ? "opacity-0":'opacity-100'}`}>
+          <ArrowUpIcon />
+        </Button>
       </form>
     </div>
   )

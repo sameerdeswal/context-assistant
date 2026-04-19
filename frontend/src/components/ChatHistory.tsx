@@ -1,15 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type MouseEvent } from 'react'
 import { MessageSquare, Calendar, Trash2 } from 'lucide-react'
-import { API } from '../services/api'
-import './ChatHistory.css'
+import API, { type Chat } from '@/services/api'
+import useApp from '@/stores/appStore'
+import { Button } from './ui/button'
 
-function ChatHistory({ onSelectChat }) {
-  const [chats, setChats] = useState([])
+interface ChatHistoryProps {
+  onSelectChat: (chatId: string) => void
+}
+
+function ChatHistory({ onSelectChat }: ChatHistoryProps) {
+  const [chats, setChats] = useState<Chat[]>([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
+  const [error, setError] = useState<string | null>(null)
+  const appStore = useApp()
   useEffect(() => {
     loadChats()
+    appStore.setHeading('Chat History')
   }, [])
 
   const loadChats = async () => {
@@ -26,7 +32,7 @@ function ChatHistory({ onSelectChat }) {
     }
   }
 
-  const handleDelete = async (chatId, e) => {
+  const handleDelete = async (chatId: string, e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
     if (!window.confirm('Are you sure you want to delete this chat?')) return
 
@@ -40,13 +46,7 @@ function ChatHistory({ onSelectChat }) {
   }
 
   return (
-    <div className="chat-history-container">
-      <div className="chat-history-header">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          <MessageSquare size={32} />
-          Chat History
-        </h1>
-      </div>
+    <div className="flex flex-col h-full flex-1">
 
       <div className="chat-history-content">
         {error && (
@@ -62,39 +62,40 @@ function ChatHistory({ onSelectChat }) {
         )}
 
         {!loading && chats.length > 0 && (
-          <div className="chats-list">
+          <div className="flex flex-col gap-2 px-3">
             {chats.map((chat) => (
               <div
                 key={chat.id}
                 onClick={() => onSelectChat(chat.id)}
-                className="chat-item"
+                className="flex items-center justify-between  p-3 border rounded-lg cursor-pointer transition hover:bg-muted"
               >
-                <div className="chat-item-left">
-                  <div className="chat-icon">
+                <div className="flex flex-col gap-1 ">
+                  <div className="flex items-center gap-2 text-left">
                     <MessageSquare size={20} />
-                  </div>
-                  <div className="chat-item-info">
-                    <h3 className="chat-item-title">{chat.title}</h3>
-                    <div className="chat-item-meta">
-                      <Calendar size={14} />
-                      <span>
-                        {new Date(chat.created_at).toLocaleDateString()} at{' '}
-                        {new Date(chat.created_at).toLocaleTimeString()}
-                      </span>
+                    <div className="flex items-center gap-2 text-left">
+                      <h3 className="chat-item-title">{chat.title}</h3>
                     </div>
                   </div>
                 </div>
-                <div className="chat-item-actions">
-                  <span className="message-count">
+                <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <Calendar size={12} />
+                  <span>
+                    {new Date(chat.created_at).toLocaleDateString()} at{' '}
+                    {new Date(chat.created_at).toLocaleTimeString()}
+                  </span>
+                </div>
+                <div className="flex gap-1 items-center">
+                  <span className="text-xs text-muted-foreground">
                     {chat.messages?.length || 0} messages
                   </span>
-                  <button
+                  <Button
                     onClick={(e) => handleDelete(chat.id, e)}
-                    className="btn-delete-chat"
+                    variant="ghost"
+                    size="icon"
                     title="Delete chat"
                   >
-                    <Trash2 size={18} />
-                  </button>
+                    <Trash2 />
+                  </Button>
                 </div>
               </div>
             ))}

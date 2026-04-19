@@ -1,44 +1,52 @@
 import { useState } from 'react'
-import { FileText, MessageSquare, History, Plus } from 'lucide-react'
-import './Sidebar.css'
+import { FileText, MessageSquare, History } from 'lucide-react'
+import { Button } from './ui/button'
 
-function Sidebar({ currentView, onViewChange }) {
-  const [isHovering, setIsHovering] = useState(null)
+export type AppView = 'knowledge_base' | 'new_chat' | 'chat_history' | 'chat_detail'
 
-  const menuItems = [
+interface SidebarProps {
+  currentView: AppView
+  onViewChange: (view: AppView) => void
+}
+
+type SidebarMenuView = Exclude<AppView, 'chat_detail'>
+
+interface MenuItem {
+  id: SidebarMenuView
+  icon: typeof FileText
+  label: string
+  title: string
+}
+
+function Sidebar({ currentView, onViewChange }: SidebarProps) {
+  const [isHovering, setIsHovering] = useState<SidebarMenuView | null>(null)
+
+  const menuItems: MenuItem[] = [
     { id: 'knowledge_base', icon: FileText, label: 'Knowledge Base', title: 'Manage Knowledge Bases' },
     { id: 'new_chat', icon: MessageSquare, label: 'New Chat', title: 'Start a new chat' },
     { id: 'chat_history', icon: History, label: 'Chat History', title: 'View previous chats' },
   ]
 
   return (
-    <div className="sidebar w-20 flex flex-col items-center py-6 space-y-8 shadow-lg">
-      <div className="logo-icon w-12 h-12 bg-zinc-900 text-zinc-100 rounded-lg flex items-center justify-center font-bold text-lg">
-        CA
-      </div>
-
+    <div className="w-20 flex flex-col items-center p-3 border-r">
       <nav className="flex flex-col space-y-6 flex-1">
         {menuItems.map((item) => {
           const Icon = item.icon
           const isActive = currentView === item.id
           return (
             <div key={item.id} className="relative">
-              <button
+              <Button
                 onClick={() => onViewChange(item.id)}
                 onMouseEnter={() => setIsHovering(item.id)}
                 onMouseLeave={() => setIsHovering(null)}
-                className={`sidebar-icon w-12 h-12 rounded-lg flex items-center justify-center transition-all ${
-                  isActive
-                    ? 'bg-gray-800 text-white'
-                    : '  hover:bg-zinc-200'
-                }`}
-                title={item.title}
-              >
-                <Icon size={24} />
-              </button>
+                variant={isActive ? 'default' : 'ghost'}
+                size="icon"
+                title={item.title}>
+                <Icon className='size-8'   />
+              </Button>
               
               {isHovering === item.id && (
-                <div className="tooltip absolute left-20 bg-zinc-800 text-white text-sm px-3 py-1 rounded whitespace-nowrap">
+                <div className="tooltip absolute left-14 top-0 bg-zinc-800 text-white text-sm px-3 py-1 rounded whitespace-nowrap">
                   {item.label}
                 </div>
               )}
