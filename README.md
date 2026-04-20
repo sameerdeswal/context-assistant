@@ -1,5 +1,9 @@
 # Context Assistant
 
+![Chat Demo](https://github.com/sameerdeswal/context-assistant/blob/main/assets/demo_chat.png?raw=true)
+![Knowledge Base Demo](https://github.com/sameerdeswal/context-assistant/blob/main/assets/demo_kb.png?raw=true)
+![New Chat Demo](https://github.com/sameerdeswal/context-assistant/blob/main/assets/demo_new_chat.png?raw=true)
+
 Context Assistant is a full-stack RAG (Retrieval-Augmented Generation) chat application.
 
 It lets you:
