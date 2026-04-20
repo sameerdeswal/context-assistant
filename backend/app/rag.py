@@ -70,7 +70,6 @@ class RAGService:
     def query_rag(
         self,
         question: str,
-        kb_id: str,
         db: Session,
         conversation_history: Optional[List] = None,
     ) -> str:
@@ -78,7 +77,7 @@ class RAGService:
             return "Gemini is not configured yet. Please set GEMINI_API_KEY in backend .env."
 
         history = conversation_history or []
-        context_docs = self._retrieve_context(question, kb_id, db)
+        context_docs = self._retrieve_context(question, db)
         context = "\n".join(doc.get("content", "") for doc in context_docs)
 
         messages = []
@@ -101,7 +100,7 @@ class RAGService:
 
         try:
             response = self.llm.invoke(messages)
-            return response.content
+            return str(response.content) if response.content else ""
         except Exception as exc:
             return f"Error generating response: {exc}"
 
@@ -121,11 +120,12 @@ class RAGService:
         messages.append(HumanMessage(content=question))
 
         try:
-            return self.llm.invoke(messages).content
+            response = self.llm.invoke(messages)
+            return str(response.content) if response.content else ""
         except Exception as exc:
             return f"Error generating response: {exc}"
 
-    def _retrieve_context(self, query: str, kb_id: str, db: Session, top_k: int = 3) -> List[dict]:
+    def _retrieve_context(self, query: str, db: Session, top_k: int = 3) -> List[dict]:
         if not self.embeddings:
             return []
 
@@ -134,7 +134,6 @@ class RAGService:
 
             matches = (
                 db.query(models.KnowledgeBaseChunk)
-                .filter(models.KnowledgeBaseChunk.knowledge_base_id == kb_id)
                 .filter(models.KnowledgeBaseChunk.embedding.is_not(None))
                 .order_by(models.KnowledgeBaseChunk.embedding.cosine_distance(query_embedding))
                 .limit(top_k)

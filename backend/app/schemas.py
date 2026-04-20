@@ -51,7 +51,6 @@ class MessageResponse(BaseModel):
 # Chat Schemas
 class ChatCreate(BaseModel):
     title: str
-    knowledge_base_id: Optional[str] = None
 
 
 class ChatResponse(BaseModel):

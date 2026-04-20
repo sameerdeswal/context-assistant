@@ -7,21 +7,9 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from './components/ui/s
 import { AppSidebar } from './components/app-sidebar'
 import { BrowserRouter, Route, Routes } from "react-router";
 import useApp from './stores/appStore'
+import { ThemeProvider } from './components/theme-provider'
 
 function App() {
-  const [currentView, setCurrentView] = useState<AppView>('new_chat')
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
-  const [selectedKbId] = useState<string | null>(null)
-
-  const handleSelectChat = (chatId: string) => {
-    setSelectedChatId(chatId)
-    setCurrentView('chat_detail')
-  }
-
-  const handleNewChat = () => {
-    setSelectedChatId(null)
-    setCurrentView('new_chat')
-  }
 
   return (
     <>
@@ -29,13 +17,14 @@ function App() {
         {/* <ScrollToTop /> */}
         <Routes>
           <Route index path="/" element={<Layout >
-            <ChatWindow chatId={selectedChatId}
-              knowledgeBaseId={selectedKbId}
-              onNewChat={handleNewChat} />
+            <ChatWindow />
           </Layout>} />
-          <Route path="/history" element={<Layout>
+          <Route index path="/chats/:chatId" element={<Layout >
+            <ChatWindow />
+          </Layout>} />
+          {/* <Route path="/history" element={<Layout>
             <ChatHistory onSelectChat={handleSelectChat} />
-          </Layout>} />
+          </Layout>} /> */}
           <Route path="/knowledge-base" element={<Layout>
             <KnowledgeBase />
           </Layout>} />
@@ -79,6 +68,7 @@ function App() {
 function Layout({ children }: { children: React.ReactNode }) {
   const appStore = useApp()
   return (
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
     <div className="flex h-screen w-full">
       <SidebarProvider style={{
         "--sidebar-width": "12rem",
@@ -94,6 +84,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         </SidebarInset>
       </SidebarProvider>
     </div>
+    </ThemeProvider>
   )
 }
 

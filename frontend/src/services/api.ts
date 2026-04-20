@@ -101,10 +101,9 @@ const API = {
     return response.data
   },
 
-  async createChat(title: string, knowledgeBaseId: string | null = null): Promise<Chat> {
+  async createChat(title: string): Promise<Chat> {
     const response = await axiosInstance.post<Chat>('/api/chats', {
-      title,
-      knowledge_base_id: knowledgeBaseId,
+      title
     })
     return response.data
   },

@@ -99,7 +99,7 @@ function KnowledgeBase() {
         <AccordionItem value="newKB" className='border-none'>
           <AccordionTrigger className='bg-muted px-3 py-2 rounded-lg'>Add New Knowledge Base</AccordionTrigger>
           <AccordionContent>
-            <form onSubmit={handleUpload} className="flex flex-col gap-4">
+            <form onSubmit={handleUpload} className="flex flex-col gap-4 p-2">
               <FieldGroup>
                 <FieldSet>
                   <FieldGroup>

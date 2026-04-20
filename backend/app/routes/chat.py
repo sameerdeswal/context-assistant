@@ -36,7 +36,6 @@ def create_chat(chat: schemas.ChatCreate, db: Session = Depends(get_db)):
     db_chat = models.Chat(
         id=chat_id,
         title=chat.title,
-        knowledge_base_id=chat.knowledge_base_id,
     )
     db.add(db_chat)
     db.commit()
@@ -120,15 +119,11 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: str, db: Session = D
             
             # Generate response using RAG
             try:
-                if chat.knowledge_base_id:
-                    response = rag_service.query_rag(
+                response = rag_service.query_rag(
                         user_message,
-                        chat.knowledge_base_id,
                         db,
                         history
                     )
-                else:
-                    response = rag_service.query_general(user_message, history)
             except Exception as e:
                 response = f"Error: {str(e)}"
             
